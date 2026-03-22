@@ -201,6 +201,15 @@ function DetailModal({ lead, onClose, onUpdate, onDelete }) {
   const [connected, setConnected] = useState(lead.connected || false);
   const [aiMsg, setAiMsg] = useState("");
   const [generating, setGenerating] = useState(false);
+  // Add editable fields
+  const [name, setName] = useState(lead.name);
+  const [phone, setPhone] = useState(lead.phone);
+  const [region, setRegion] = useState(lead.region);
+  const [source, setSource] = useState(lead.source || "");
+  const [product, setProduct] = useState(lead.product || "");
+  const [subtype, setSubtype] = useState(lead.subtype || "individual");
+  const [hairKg, setHairKg] = useState(lead.hairKg || "");
+  const [objection, setObjection] = useState(lead.objection || "");
 
   const t = getTemp(lead);
   const center = lead.type === "supply" ? COLLECTION_CENTERS[lead.region] : null;
@@ -213,7 +222,7 @@ function DetailModal({ lead, onClose, onUpdate, onDelete }) {
     if (lead.type === "supply" && lead.subtype === "agent") {
       prompt = `Niandikia WhatsApp message kwa mtu anayetaka kuwa Wakala wa Ukusanyaji wa CutOff Recycle:\nJina: ${lead.name}\nEneo: ${lead.region}${isTarget ? " (mkoa tunaolenga sana!)" : ""}\nStatus: ${status}\nObjection: ${lead.objection || "Hakuna"}\nNotes: ${notes}\nSiku bila mawasiliano: ${daysSince(lead.lastContact)}\nTaja hatua za kuwa wakala na uelekeze ajiunge WhatsApp group "Mtandao wa Wakusanyaji Taka Nywele Tanzania" na kujaza fomu https://tinyurl.com/haircollectors. Message fupi, Kiswahili cha kawaida, kama David anaandika. Jibu kwa message peke yake.`;
     } else if (lead.type === "supply") {
-      prompt = `Niandikia WhatsApp message kwa mkusanyaji wa nywele:\nJina: ${lead.name}\nEneo: ${lead.region}\nChanzo: ${lead.source}\nStatus: ${status}\nObjection: ${lead.objection || "Hakuna"}\nNotes: ${notes}\nSiku bila mawasiliano: ${daysSince(lead.lastContact)}\nCollection center: ${center?.name || "inatafutwa"}\nMalipo: 300 TZS/kg. Taja pia WhatsApp group "Mtandao wa Wakusanyaji Taka Nywele Tanzania". Message fupi ya WhatsApp, Kiswahili, kama David. Jibu kwa message peke yake.`;
+      prompt = `Niandikia WhatsApp message kwa mkusanyaji wa nywele:\nJina: ${lead.name}\nEneo: ${lead.region}\nChanzo: ${lead.source}\nStatus: ${status}\nObjection: ${lead.objection || "Hakuna"}\nNotes: ${notes}\nSiku bila mawasiliano: ${daysSince(lead.lastContact)}\nCollection center: ${center?.name || "inatafutwa"}\nMalipo: 300 TZS/kg. Pia kuna fursa za kuwa wakala wa ukusanyaji kwa mkoa/eneo lako (500 TZS/kg). Taja pia WhatsApp group "Mtandao wa Wakusanyaji Taka Nywele Tanzania". Message fupi ya WhatsApp, Kiswahili, kama David. Jibu kwa message peke yake.`;
     } else if (lead.type === "distributor") {
       prompt = `Niandikia WhatsApp message kwa anayetaka kuwa wakala wa usambazaji wa mbolea:\nJina: ${lead.name}\nEneo: ${lead.region}\nDuka: ${notes}\nStatus: ${status}\nObjection: ${lead.objection || "Hakuna"}\nSiku bila mawasiliano: ${daysSince(lead.lastContact)}\nWanahitaji leseni ya TFRA kwanza. Bei ya jumla Tsh 10,000/L. MOQ katoni 10. Message fupi ya WhatsApp, Kiswahili, kama David. Jibu kwa message peke yake.`;
     } else {
@@ -225,7 +234,21 @@ function DetailModal({ lead, onClose, onUpdate, onDelete }) {
   };
 
   const save = () => {
-    onUpdate({ ...lead, status, notes, connected, lastContact: new Date().toISOString() });
+    onUpdate({
+      ...lead,
+      name,
+      phone,
+      region,
+      source,
+      product,
+      subtype,
+      hairKg,
+      objection,
+      status,
+      notes,
+      connected,
+      lastContact: new Date().toISOString(),
+    });
     onClose();
   };
 
@@ -235,16 +258,101 @@ function DetailModal({ lead, onClose, onUpdate, onDelete }) {
         <div className="mhead">
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-              <div className="mtitle">{lead.name}</div>
+              <div className="mtitle">Edit lead</div>
               <span className={`bdg ${lead.type === "sales" ? "chip-g" : lead.type === "supply" ? "chip-b" : "chip-y"}`} style={{ fontSize: 10 }}>
-                {lead.type === "sales" ? "Sales" : lead.type === "supply" ? `Supply · ${lead.subtype === "agent" ? "Wakala" : "Individual"}` : "Distributor"}
+                {lead.type === "sales" ? "Sales" : lead.type === "supply" ? `Supply · ${subtype === "agent" ? "Wakala" : "Individual"}` : "Distributor"}
               </span>
-              {isTarget && <span className="bdg chip-y" style={{ fontSize: 10 }}>Target</span>}
+              {TARGET_REGIONS.includes(region) && <span className="bdg chip-y" style={{ fontSize: 10 }}>Target</span>}
             </div>
-            <div className="msub">{lead.phone} · {lead.region}{lead.source ? ` · ${lead.source}` : ""}</div>
+            <div className="msub">{phone} · {region}{source ? ` · ${source}` : ""}</div>
           </div>
           <button className="xbtn" onClick={onClose}>✕</button>
         </div>
+
+        {/* Editable fields */}
+        <div className="field">
+          <label>Name</label>
+          <input value={name} onChange={e => setName(e.target.value)} />
+        </div>
+        <div className="field">
+          <label>Phone</label>
+          <input value={phone} onChange={e => setPhone(e.target.value)} />
+        </div>
+        <div className="row2">
+          <div className="field">
+            <label>Region</label>
+            <select value={region} onChange={e => setRegion(e.target.value)}>
+              {REGIONS.map(r => <option key={r}>{r}</option>)}
+            </select>
+          </div>
+          <div className="field">
+            <label>Source</label>
+            <select value={source} onChange={e => setSource(e.target.value)}>
+              {(lead.type === "supply" ? SUPPLY_SRC : SALES_SRC).map(s => <option key={s}>{s}</option>)}
+            </select>
+          </div>
+        </div>
+        {lead.type === "sales" && (
+          <div className="row2">
+            <div className="field">
+              <label>Product</label>
+              <select value={product} onChange={e => setProduct(e.target.value)}>
+                {PRODUCTS.map(p => <option key={p}>{p}</option>)}
+              </select>
+            </div>
+            <div className="field">
+              <label>Status</label>
+              <select value={status} onChange={e => setStatus(e.target.value)}>
+                {SALES_ST.map(s => <option key={s}>{s}</option>)}
+              </select>
+            </div>
+          </div>
+        )}
+        {lead.type === "supply" && (
+          <>
+            <div className="row2">
+              <div className="field">
+                <label>Type</label>
+                <select value={subtype} onChange={e => setSubtype(e.target.value)}>
+                  <option value="individual">Individual collector</option>
+                  <option value="agent">Wakala (agent)</option>
+                </select>
+              </div>
+              <div className="field">
+                <label>Hair supply (kg/week)</label>
+                <input type="number" value={hairKg} onChange={e => setHairKg(e.target.value)} placeholder="e.g. 3" />
+              </div>
+            </div>
+            <div className="field">
+              <label>Status</label>
+              <select value={status} onChange={e => setStatus(e.target.value)}>
+                {SUPPLY_ST.map(s => <option key={s}>{s}</option>)}
+              </select>
+            </div>
+          </>
+        )}
+        {lead.type === "distributor" && (
+          <div className="field">
+            <label>Status</label>
+            <select value={status} onChange={e => setStatus(e.target.value)}>
+              {DIST_ST.map(s => <option key={s}>{s}</option>)}
+            </select>
+          </div>
+        )}
+        <div className="field">
+          <label>Objection</label>
+          <input value={objection} onChange={e => setObjection(e.target.value)} placeholder="Bei, Leseni, Usafiri..." />
+        </div>
+        <div className="field">
+          <label>Notes</label>
+          <textarea value={notes} onChange={e => setNotes(e.target.value)} />
+        </div>
+        {lead.type === "supply" && (
+          <div className="checkbox-row">
+            <input type="checkbox" id="d-connected" checked={connected} onChange={e => setConnected(e.target.checked)} />
+            <label htmlFor="d-connected">Wameunganishwa na collection center</label>
+          </div>
+        )}
 
         <div className="chips" style={{ marginBottom: 14 }}>
           <span className={`bdg ${t}`}>{tempLabel(t)}</span>
