@@ -1,6 +1,6 @@
 export const PRODUCTS = ["Rutubisha", "Vuna", "McheKuza", "Hajajua bado"];
-export const SALES_SRC = ["Instagram/Facebook", "Referral", "Maonyesho/Event", "Nyingine"];
-export const SUPPLY_SRC = ["Barbershop", "Salon", "Shule", "Kambi ya Jeshi", "Nyingine"];
+export const SALES_SRC = ["Instagram/Facebook", "Referral", "Maonyesho/Event", "TV broadcasts", "Nyingine"];
+export const SUPPLY_SRC = ["Barbershop", "Salon", "Shule", "Kambi ya Jeshi", "TV broadcasts", "Nyingine"];
 export const DIST_SRC = ["Instagram/Facebook", "Referral", "Maonyesho/Event", "Nyingine"];
 export const REGIONS = ["Arusha", "Dar es Salaam", "Kilimanjaro", "Tanga", "Manyara", "Nyingine"];
 export const SALES_ST = ["Mpya", "Anafikiri", "Ameamua", "Amenunua", "Amepotea"];
