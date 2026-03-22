@@ -5,7 +5,7 @@ import {
   SALES_ST, SUPPLY_ST, DIST_ST, TARGET_REGIONS,
   COLLECTION_CENTERS, AGENT_STEPS, DIST_STEPS, PAYMENT
 } from "./constants";
-import { daysSince, getTemp, tempLabel, statusColor, callAI, defaultForm, parseAIResponse } from "./utils";
+import { daysSince, getTemp, tempLabel, statusColor, callAI, defaultForm, parseAIResponse, generateFollowUpPrompt } from "./utils";
 
 // ─── LEAD CARD ────────────────────────────────────────────────────────────────
 function LeadCard({ lead, onClick }) {
@@ -227,30 +227,55 @@ function DetailModal({ lead, onClose, onUpdate, onDelete }) {
   const isTarget = TARGET_REGIONS.includes(lead.region);
   const stOptions = lead.type === "sales" ? SALES_ST : lead.type === "supply" ? SUPPLY_ST : DIST_ST;
 
-  const genMessage = async () => {
+  const genMessage = async (regenerate = false) => {
     setGenerating(true);
-    let prompt = "";
-    if (lead.type === "supply" && lead.subtype === "agent") {
-      prompt = `Niandikia WhatsApp message kwa mtu anayetaka kuwa Wakala wa Ukusanyaji wa CutOff Recycle:\nJina: ${lead.name}\nEneo: ${lead.region}${isTarget ? " (mkoa tunaolenga sana!)" : ""}\nStatus: ${status}\nObjection: ${lead.objection || "Hakuna"}\nNotes: ${notes}\nSiku bila mawasiliano: ${daysSince(lead.lastContact)}\nTaja hatua za kuwa wakala na uelekeze ajiunge WhatsApp group "Mtandao wa Wakusanyaji Taka Nywele Tanzania" na kujaza fomu https://tinyurl.com/haircollectors. Message fupi, Kiswahili cha kawaida, kama David anaandika. Jibu kwa message peke yake.`;
-    } else if (lead.type === "supply") {
-      prompt = `Niandikia WhatsApp message kwa mkusanyaji wa nywele:\nJina: ${lead.name}\nEneo: ${lead.region}\nChanzo: ${lead.source}\nStatus: ${status}\nObjection: ${lead.objection || "Hakuna"}\nNotes: ${notes}\nSiku bila mawasiliano: ${daysSince(lead.lastContact)}\nCollection center: ${center?.name || "inatafutwa"}\nMalipo: 300 TZS/kg. Pia kuna fursa za kuwa wakala wa ukusanyaji kwa mkoa/eneo lako (500 TZS/kg). Taja pia WhatsApp group "Mtandao wa Wakusanyaji Taka Nywele Tanzania". Message fupi ya WhatsApp, Kiswahili, kama David. Jibu kwa message peke yake.`;
-    } else if (lead.type === "distributor") {
-      prompt = `Niandikia WhatsApp message kwa anayetaka kuwa wakala wa usambazaji wa mbolea:\nJina: ${lead.name}\nEneo: ${lead.region}\nDuka: ${notes}\nStatus: ${status}\nObjection: ${lead.objection || "Hakuna"}\nSiku bila mawasiliano: ${daysSince(lead.lastContact)}\nWanahitaji leseni ya TFRA kwanza. Bei ya jumla Tsh 10,000/L. MOQ katoni 10. Message fupi ya WhatsApp, Kiswahili, kama David. Jibu kwa message peke yake.`;
-    } else {
-      prompt = `Niandikia WhatsApp follow-up message kwa mteja wa mbolea:\nJina: ${lead.name}\nBidhaa: ${lead.product}\nStatus: ${status}\nObjection: ${lead.objection || "Hakuna"}\nNotes: ${notes}\nSiku bila mawasiliano: ${daysSince(lead.lastContact)}\nMessage fupi ya WhatsApp, Kiswahili cha kawaida, kama David. Jibu kwa message peke yake.`;
-    }
+    // Use up-to-date lead fields for prompt
+    const leadForPrompt = {
+      ...lead,
+      status,
+      notes,
+      connected,
+      name,
+      phone,
+      region,
+      source,
+      product,
+      subtype,
+      hairKg,
+      objection,
+      nextAction,
+      nextActionDate,
+    };
+    const prompt = generateFollowUpPrompt(leadForPrompt);
     const msg = await callAI(prompt);
     setAiMsg(msg);
+    // Store message in lead.history (array)
+    const newHistory = Array.isArray(lead.history) ? [...lead.history] : [];
+    newHistory.push({ message: msg, date: new Date().toISOString() });
     // Parse AI response for lead intelligence
     const intel = parseAIResponse(msg);
     onUpdate({
       ...lead,
+      status,
+      notes,
+      connected,
+      name,
+      phone,
+      region,
+      source,
+      product,
+      subtype,
+      hairKg,
+      objection,
+      nextAction,
+      nextActionDate,
       leadScore: intel.leadScore,
       intent: intel.intent,
       objection: intel.objection,
       recommendedAction: intel.recommendedAction,
       summary: intel.summary,
       lastContacted: new Date().toISOString(),
+      history: newHistory,
     });
     setGenerating(false);
   };
@@ -481,8 +506,11 @@ function DetailModal({ lead, onClose, onUpdate, onDelete }) {
 
         <div className="div" />
         <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.3px", color: "#888" }}>AI follow-up message</div>
-        <button className="bai" onClick={genMessage} disabled={generating}>
+        <button className="bai" onClick={() => genMessage(false)} disabled={generating}>
           {generating ? <><span className="spin">⟳</span> Inaandika...</> : "Write message"}
+        </button>
+        <button className="bghost" onClick={() => genMessage(true)} disabled={generating} style={{marginLeft:8}}>
+          Regenerate
         </button>
 
         {aiMsg && (
@@ -492,6 +520,11 @@ function DetailModal({ lead, onClose, onUpdate, onDelete }) {
             <button className="bcopy" onClick={() => navigator.clipboard.writeText(aiMsg)}>Copy</button>
           </div>
         )}
+        <button className="bghost" onClick={() => {
+          onUpdate({ ...lead, lastContacted: new Date().toISOString() });
+        }} style={{marginTop:8}}>
+          Mark as Contacted
+        </button>
 
         <div className="mfoot">
           <button className="bghost" onClick={onClose}>Close</button>

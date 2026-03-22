@@ -87,6 +87,69 @@ export function parseAIResponse(responseText) {
   return result;
 }
 
+// --- Modular, context-aware follow-up prompt generator ---
+// Uses lead type, intent, objection, notes, and tries to infer language/tone
+export function generateFollowUpPrompt(lead, opts = {}) {
+  // Language/tone detection (simple):
+  // If notes/objection contain English words, use English, else Kiswahili (default)
+  const text = `${lead.notes || ''} ${lead.objection || ''}`.toLowerCase();
+  const isEnglish = /\b(the|and|but|order|price|buy|not|no|yes|kg|hair|fertilizer|product|customer|call|message|when|how|why|what)\b/.test(text);
+  const lang = opts.lang || (isEnglish ? "English" : "Kiswahili");
+  // Tone: If intent is 'buying', be direct/transactional. If 'exploring', be friendly/informative. If objection, address it.
+  let tone = "";
+  if (lead.intent === "buying") tone = lang === "English" ? "Direct, transactional, polite" : "Moja kwa moja, kibiashara, kwa heshima";
+  else if (lead.intent === "exploring") tone = lang === "English" ? "Friendly, informative, helpful" : "Rafiki, wa kutoa taarifa, msaada";
+  else tone = lang === "English" ? "Polite, concise" : "Kwa heshima, kwa ufupi";
+  // Objection handling
+  let objectionPart = "";
+  if (lead.objection) {
+    objectionPart = lang === "English"
+      ? `Address this objection: '${lead.objection}'.`
+      : `Jibu pingamizi hili: '${lead.objection}'.`;
+  }
+  // Lead type context
+  let typePart = "";
+  if (lead.type === "sales") {
+    typePart = lang === "English"
+      ? `This is a sales lead interested in '${lead.product || "our product"}'.`
+      : `Huyu ni mteja wa mauzo anayevutiwa na '${lead.product || "bidhaa yetu"}'.`;
+  } else if (lead.type === "supply") {
+    typePart = lang === "English"
+      ? `This is a supply lead (barbershop/individual/agent).`
+      : `Huyu ni lead wa usambazaji (kinyozi/mtu binafsi/wakala).`;
+  } else if (lead.type === "distributor") {
+    typePart = lang === "English"
+      ? `This is a distributor lead.`
+      : `Huyu ni lead wa usambazaji wa jumla.`;
+  }
+  // Next action context
+  let nextActionPart = lead.nextAction
+    ? (lang === "English"
+        ? `The next action is: ${lead.nextAction}.`
+        : `Hatua inayofuata: ${lead.nextAction}.`)
+    : "";
+  // Notes summary
+  let notesPart = lead.notes
+    ? (lang === "English"
+        ? `Notes: ${lead.notes}`
+        : `Maelezo: ${lead.notes}`)
+    : "";
+  // Prompt assembly
+  const prompt = [
+    lang === "English"
+      ? `Write a WhatsApp follow-up message for a CRM user. Use this context:`
+      : `Andika ujumbe wa kufuatilia WhatsApp kwa mtumiaji wa CRM. Tumia muktadha huu:`,
+    typePart,
+    notesPart,
+    nextActionPart,
+    objectionPart,
+    lang === "English"
+      ? `Tone: ${tone}. Reply in WhatsApp style, short and clear. No emojis.`
+      : `Mtindo: ${tone}. Jibu kwa mtindo wa WhatsApp, kifupi na wazi. Bila emoji.`,
+  ].filter(Boolean).join("\n");
+  return prompt;
+}
+
 export const defaultForm = (type) => {
   if (type === "sales")
     return { name: "", phone: "", source: "Instagram/Facebook", product: "Rutubisha", status: "Mpya", region: "Arusha", notes: "", objection: "" };
