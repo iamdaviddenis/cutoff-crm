@@ -3,7 +3,7 @@ import "./App.css";
 import {
   PRODUCTS, SALES_SRC, SUPPLY_SRC, REGIONS,
   SALES_ST, SUPPLY_ST, DIST_ST, TARGET_REGIONS,
-  COLLECTION_CENTERS, AGENT_STEPS, DIST_STEPS, PAYMENT, DEMO_LEADS,
+  COLLECTION_CENTERS, AGENT_STEPS, DIST_STEPS, PAYMENT
 } from "./constants";
 import { daysSince, getTemp, tempLabel, statusColor, callAI, defaultForm } from "./utils";
 
