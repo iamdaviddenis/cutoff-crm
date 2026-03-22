@@ -195,7 +195,7 @@ function AddModal({ onClose, onSave, initialType }) {
 }
 
 // ─── DETAIL MODAL ─────────────────────────────────────────────────────────────
-function DetailModal({ lead, onClose, onUpdate }) {
+function DetailModal({ lead, onClose, onUpdate, onDelete }) {
   const [status, setStatus] = useState(lead.status);
   const [notes, setNotes] = useState(lead.notes || "");
   const [connected, setConnected] = useState(lead.connected || false);
@@ -330,6 +330,7 @@ function DetailModal({ lead, onClose, onUpdate }) {
         <div className="mfoot">
           <button className="bghost" onClick={onClose}>Close</button>
           <button className="bprim" onClick={save}>Save changes</button>
+          <button className="bdel" style={{marginLeft:8, color:'#b00', border:'1px solid #b00', background:'none'}} onClick={onDelete}>Delete lead</button>
         </div>
       </div>
     </div>
@@ -387,7 +388,8 @@ function ReportTab({ leads }) {
 // ─── APP ──────────────────────────────────────────────────────────────────────
 export default function App() {
   const [tab, setTab] = useState("dashboard");
-  const [leads, setLeads] = useState(DEMO_LEADS);
+  // Start with empty leads array instead of DEMO_LEADS
+  const [leads, setLeads] = useState([]);
   const [lt, setLt] = useState("sales");
   const [filter, setFilter] = useState("All");
   const [modal, setModal] = useState(null);
@@ -395,6 +397,8 @@ export default function App() {
 
   const addLead = (lead) => setLeads((l) => [lead, ...l]);
   const updateLead = (u) => setLeads((l) => l.map((x) => (x.id === u.id ? u : x)));
+  // Add deleteLead function
+  const deleteLead = (id) => setLeads((l) => l.filter((x) => x.id !== id));
 
   const sl = leads.filter((l) => l.type === "sales");
   const sul = leads.filter((l) => l.type === "supply");
@@ -487,6 +491,8 @@ export default function App() {
           lead={detail}
           onClose={() => setDetail(null)}
           onUpdate={(u) => { updateLead(u); setDetail(null); }}
+          // Pass deleteLead to DetailModal
+          onDelete={() => { deleteLead(detail.id); setDetail(null); }}
         />
       )}
     </div>
