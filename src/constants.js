@@ -65,3 +65,31 @@ export const DEMO_LEADS = [
     objection: "TFRA license", createdAt: new Date(Date.now() - 3 * 864e5).toISOString(),
   },
 ];
+
+// Lead intelligence fields
+// leadScore: number (0-100)
+// intent: "buying" | "exploring" | "unclear"
+// recommendedAction: string
+// summary: string (max 2 sentences)
+export interface Lead {
+  id: number;
+  type: string;
+  name: string;
+  phone: string;
+  region: string;
+  source: string;
+  product?: string;
+  status: string;
+  objection?: string;
+  notes?: string;
+  lastContact: string;
+  createdAt: string;
+  subtype?: string;
+  hairKg?: string;
+  connected?: boolean;
+  // AI-driven fields
+  leadScore?: number;
+  intent?: "buying" | "exploring" | "unclear";
+  recommendedAction?: string;
+  summary?: string;
+}

@@ -45,6 +45,48 @@ export async function callAI(prompt) {
   }
 }
 
+// --- AI Lead Intelligence ---
+// Parse AI output into structured lead intelligence
+export function parseAIResponse(responseText) {
+  let result = {
+    summary: "",
+    intent: "unclear",
+    objection: "",
+    leadScore: 0,
+    recommendedAction: "",
+  };
+  try {
+    // Try to parse as JSON
+    let obj = responseText;
+    if (typeof responseText === "string") {
+      obj = responseText.replace(/```json|```/g, "").trim();
+      obj = JSON.parse(obj);
+    }
+    if (typeof obj === "object" && obj !== null) {
+      result.summary = typeof obj.summary === "string" ? obj.summary.slice(0, 200) : "";
+      result.intent = ["buying", "exploring", "unclear"].includes(obj.intent) ? obj.intent : "unclear";
+      result.objection = typeof obj.objection === "string" ? obj.objection : "";
+      result.leadScore = Number.isFinite(obj.leadScore) && obj.leadScore >= 0 && obj.leadScore <= 100 ? obj.leadScore : 0;
+      result.recommendedAction = typeof obj.recommendedAction === "string" ? obj.recommendedAction : "";
+    }
+  } catch (e) {
+    // fallback: try to extract fields from messy text
+    const scoreMatch = responseText.match(/leadScore\s*[:=]\s*(\d{1,3})/i);
+    if (scoreMatch) result.leadScore = Math.max(0, Math.min(100, parseInt(scoreMatch[1], 10)));
+    const intentMatch = responseText.match(/intent\s*[:=]\s*(buying|exploring|unclear)/i);
+    if (intentMatch) result.intent = intentMatch[1];
+    const objectionMatch = responseText.match(/objection\s*[:=]\s*([^\n,]+)/i);
+    if (objectionMatch) result.objection = objectionMatch[1].trim();
+    const actionMatch = responseText.match(/recommendedAction\s*[:=]\s*([^\n]+)/i);
+    if (actionMatch) result.recommendedAction = actionMatch[1].trim();
+    // Try to get a summary (first 2 sentences)
+    const summaryMatch = responseText.match(/summary\s*[:=]\s*([^\n]+)/i);
+    if (summaryMatch) result.summary = summaryMatch[1].trim();
+    else result.summary = responseText.split(/[.!?]/).slice(0,2).join(". ").trim();
+  }
+  return result;
+}
+
 export const defaultForm = (type) => {
   if (type === "sales")
     return { name: "", phone: "", source: "Instagram/Facebook", product: "Rutubisha", status: "Mpya", region: "Arusha", notes: "", objection: "" };

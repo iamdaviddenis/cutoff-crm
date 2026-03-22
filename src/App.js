@@ -230,6 +230,16 @@ function DetailModal({ lead, onClose, onUpdate, onDelete }) {
     }
     const msg = await callAI(prompt);
     setAiMsg(msg);
+    // Parse AI response for lead intelligence
+    const intel = parseAIResponse(msg);
+    onUpdate({
+      ...lead,
+      leadScore: intel.leadScore,
+      intent: intel.intent,
+      objection: intel.objection,
+      recommendedAction: intel.recommendedAction,
+      summary: intel.summary,
+    });
     setGenerating(false);
   };
 
@@ -378,6 +388,28 @@ function DetailModal({ lead, onClose, onUpdate, onDelete }) {
         <div className="field">
           <label>Notes</label>
           <textarea value={notes} onChange={(e) => setNotes(e.target.value)} />
+        </div>
+
+        {/* Lead Intelligence Section */}
+        <div className="lead-intel">
+          {typeof lead.leadScore === "number" && (
+            <div className="intel-row">
+              <span>Lead Score:</span>
+              <span style={{
+                color: lead.leadScore >= 70 ? '#2e8b57' : lead.leadScore >= 40 ? '#e6b800' : '#b00',
+                fontWeight: 700
+              }}>{lead.leadScore}</span>
+            </div>
+          )}
+          {lead.intent && (
+            <div className="intel-row"><span>Intent:</span> <span>{lead.intent}</span></div>
+          )}
+          {lead.objection && (
+            <div className="intel-row"><span>Objection:</span> <span>{lead.objection}</span></div>
+          )}
+          {lead.recommendedAction && (
+            <div className="intel-row"><span>Recommended Action:</span> <span>{lead.recommendedAction}</span></div>
+          )}
         </div>
 
         {center && (
