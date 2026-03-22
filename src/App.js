@@ -432,7 +432,7 @@ export default function App() {
               <div className="stat"><div className="sn">{sl.length}</div><div className="sl">Sales leads</div></div>
               <div className="stat"><div className="sn" style={{ color: "#993C1D" }}>{hot}</div><div className="sl">Hot sales</div></div>
               <div className="stat"><div className="sn">{sul.length} · <span style={{ fontSize: 16 }}>{kg}kg/wk</span></div><div className="sl">Supply leads</div></div>
-              <div className="stat"><div className="sn">{dl.length}</div><div className="sl">Distributor leads</div></div>
+              {/* <div className="stat"><div className="sn">{dl.length}</div><div className="sl">Distributor leads</div></div> */}
             </div>
 
             {needFU > 0 && (
