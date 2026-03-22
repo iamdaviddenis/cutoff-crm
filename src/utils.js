@@ -23,23 +23,13 @@ export const statusColor = (s) =>
 
 export async function callAI(prompt) {
   try {
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
+    const res = await fetch("/api/anthropic", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": process.env.REACT_APP_ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
-        "anthropic-dangerous-direct-browser-access": "true",
-      },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 1000,
-        system: `Wewe ni msaidizi wa CutOff Recycle Limited — kampuni ya Tanzania inayotengeneza mbolea ya kikaboni kutoka nywele za binadamu. Bidhaa: Rutubisha (mbolea ngumu/growing medium), Vuna (liquid foliar fertilizer), McheKuza (Tokyo 8 biofertilizer). CEO: David Denis Hariohay. Kiswahili cha kawaida, karibu, la kibiashara. Malipo ya wakusanyaji: 300 TZS/kg kwa mkusanyaji, 150 TZS/kg kwa hub (sorting), 50 TZS/kg convenience fee.`,
-        messages: [{ role: "user", content: prompt }],
-      }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt }),
     });
     const data = await res.json();
-    return data.content?.[0]?.text || "Imeshindwa. Jaribu tena.";
+    return data.text || "Imeshindwa. Jaribu tena.";
   } catch {
     return "Hitilafu ya mtandao. Jaribu tena.";
   }
