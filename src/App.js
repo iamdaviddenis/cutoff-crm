@@ -1,7 +1,7 @@
 import { useState } from "react";
 import "./App.css";
 import {
-  PRODUCTS, SALES_SRC, SUPPLY_SRC, DIST_SRC, REGIONS,
+  PRODUCTS, SALES_SRC, SUPPLY_SRC, REGIONS,
   SALES_ST, SUPPLY_ST, DIST_ST, TARGET_REGIONS,
   COLLECTION_CENTERS, AGENT_STEPS, DIST_STEPS, PAYMENT, DEMO_LEADS,
 } from "./constants";
@@ -343,7 +343,7 @@ function ReportTab({ leads }) {
 
   const sl = leads.filter((l) => l.type === "sales");
   const sul = leads.filter((l) => l.type === "supply");
-  const dl = leads.filter((l) => l.type === "distributor");
+  // const dl = leads.filter((l) => l.type === "distributor");
   const sold = sl.filter((l) => l.status === "Amenunua").length;
   const hot = sl.filter((l) => getTemp(l) === "hot").length;
   const conn = sul.filter((l) => l.connected).length;
@@ -398,7 +398,7 @@ export default function App() {
 
   const sl = leads.filter((l) => l.type === "sales");
   const sul = leads.filter((l) => l.type === "supply");
-  const dl = leads.filter((l) => l.type === "distributor");
+  // const dl = leads.filter((l) => l.type === "distributor");
   const hot = sl.filter((l) => getTemp(l) === "hot").length;
   const kg = Math.round(sul.filter((l) => l.connected && l.hairKg).reduce((a, l) => a + parseFloat(l.hairKg || 0), 0));
   const needFU = leads.filter((l) => daysSince(l.lastContact) >= 3 && !["Amenunua", "Amepotea", "Hayatoi tena"].includes(l.status)).length;
