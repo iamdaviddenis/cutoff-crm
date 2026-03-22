@@ -71,6 +71,9 @@ export const DEMO_LEADS = [
 // intent: "buying" | "exploring" | "unclear"
 // recommendedAction: string
 // summary: string (max 2 sentences)
+// nextAction: string
+// nextActionDate: string (ISO date)
+// lastContacted: string (ISO date)
 export interface Lead {
   id: number;
   type: string;
@@ -92,4 +95,7 @@ export interface Lead {
   intent?: "buying" | "exploring" | "unclear";
   recommendedAction?: string;
   summary?: string;
+  nextAction?: string;
+  nextActionDate?: string;
+  lastContacted?: string;
 }

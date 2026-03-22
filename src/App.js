@@ -70,7 +70,8 @@ function AddModal({ onClose, onSave, initialType }) {
 
   const save = () => {
     if (!form.name.trim()) return alert("Weka jina la lead");
-    onSave({ ...form, id: Date.now(), type: nt, lastContact: new Date().toISOString(), createdAt: new Date().toISOString() });
+    if (!form.nextAction || !form.nextActionDate) return alert("Weka Next Action na tarehe yake");
+    onSave({ ...form, id: Date.now(), type: nt, lastContact: new Date().toISOString(), createdAt: new Date().toISOString(), lastContacted: new Date().toISOString() });
     onClose();
   };
 
@@ -184,6 +185,14 @@ function AddModal({ onClose, onSave, initialType }) {
           <label>Notes</label>
           <textarea value={form.notes} onChange={(e) => setF("notes", e.target.value)} placeholder="Maelezo muhimu..." />
         </div>
+        <div className="field">
+          <label>Next Action *</label>
+          <input value={form.nextAction || ""} onChange={e => setF("nextAction", e.target.value)} placeholder="e.g. Call, WhatsApp, Email..." required />
+        </div>
+        <div className="field">
+          <label>Next Action Date *</label>
+          <input type="date" value={form.nextActionDate ? form.nextActionDate.slice(0,10) : ""} onChange={e => setF("nextActionDate", e.target.value)} required />
+        </div>
 
         <div className="mfoot">
           <button className="bghost" onClick={onClose}>Cancel</button>
@@ -210,6 +219,8 @@ function DetailModal({ lead, onClose, onUpdate, onDelete }) {
   const [subtype, setSubtype] = useState(lead.subtype || "individual");
   const [hairKg, setHairKg] = useState(lead.hairKg || "");
   const [objection, setObjection] = useState(lead.objection || "");
+  const [nextAction, setNextAction] = useState(lead.nextAction || "");
+  const [nextActionDate, setNextActionDate] = useState(lead.nextActionDate || "");
 
   const t = getTemp(lead);
   const center = lead.type === "supply" ? COLLECTION_CENTERS[lead.region] : null;
@@ -239,11 +250,14 @@ function DetailModal({ lead, onClose, onUpdate, onDelete }) {
       objection: intel.objection,
       recommendedAction: intel.recommendedAction,
       summary: intel.summary,
+      lastContacted: new Date().toISOString(),
     });
     setGenerating(false);
   };
 
   const save = () => {
+    if (!name.trim()) return alert("Weka jina la lead");
+    if (!nextAction || !nextActionDate) return alert("Weka Next Action na tarehe yake");
     onUpdate({
       ...lead,
       name,
@@ -257,6 +271,9 @@ function DetailModal({ lead, onClose, onUpdate, onDelete }) {
       status,
       notes,
       connected,
+      nextAction,
+      nextActionDate,
+      lastContacted: new Date().toISOString(),
       lastContact: new Date().toISOString(),
     });
     onClose();
@@ -388,6 +405,15 @@ function DetailModal({ lead, onClose, onUpdate, onDelete }) {
         <div className="field">
           <label>Notes</label>
           <textarea value={notes} onChange={(e) => setNotes(e.target.value)} />
+        </div>
+
+        <div className="field">
+          <label>Next Action *</label>
+          <input value={nextAction || ""} onChange={e => setNextAction(e.target.value)} placeholder="e.g. Call, WhatsApp, Email..." required />
+        </div>
+        <div className="field">
+          <label>Next Action Date *</label>
+          <input type="date" value={nextActionDate ? nextActionDate.slice(0,10) : ""} onChange={e => setNextActionDate(e.target.value)} required />
         </div>
 
         {/* Lead Intelligence Section */}
@@ -525,6 +551,29 @@ function ReportTab({ leads }) {
   );
 }
 
+// ─── LEADS TO FOLLOW UP TODAY ─────────────────────────────────────────────────
+function LeadsToFollowUpToday({ leads }) {
+  const today = new Date().toISOString().slice(0, 10);
+  const dueLeads = leads.filter(l => l.nextActionDate && l.nextActionDate.slice(0,10) <= today)
+    .sort((a, b) => (a.nextActionDate || '').localeCompare(b.nextActionDate || ''));
+  if (dueLeads.length === 0) return null;
+  return (
+    <div className="followup-box">
+      <div className="followup-title">Leads to Follow Up Today</div>
+      <ul className="followup-list">
+        {dueLeads.map(l => (
+          <li key={l.id} className="followup-item">
+            <span className="fup-name">{l.name}</span>
+            <span className="fup-action">{l.nextAction}</span>
+            <span className="fup-date">{l.nextActionDate.slice(0,10)}</span>
+            <span className="fup-phone">{l.phone}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 // ─── APP ──────────────────────────────────────────────────────────────────────
 export default function App() {
   const [tab, setTab] = useState("dashboard");
@@ -570,6 +619,7 @@ export default function App() {
       </header>
 
       <div className="main">
+        <LeadsToFollowUpToday leads={leads} />
         {tab === "dashboard" && (
           <>
             <div className="stats">
