@@ -271,7 +271,6 @@ function DetailModal({ lead, onClose, onUpdate, onDelete }) {
       nextActionDate,
       leadScore: intel.leadScore,
       intent: intel.intent,
-      objection: intel.objection,
       recommendedAction: intel.recommendedAction,
       summary: intel.summary,
       lastContacted: new Date().toISOString(),
