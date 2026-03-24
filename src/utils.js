@@ -141,9 +141,10 @@ export function generateFollowUpPrompt(lead, opts = {}) {
 }
 
 export const defaultForm = (type) => {
+  const today = new Date().toISOString().slice(0, 10);
   if (type === "sales")
-    return { name: "", phone: "", source: "Instagram/Facebook", product: "Rutubisha", status: "Mpya", region: "Arusha", notes: "", objection: "" };
+    return { name: "", phone: "", source: "Instagram/Facebook", product: "Rutubisha", status: "Mpya", region: "Arusha", notes: "", objection: "", nextAction: "Send WhatsApp follow-up", nextActionDate: today };
   if (type === "supply")
-    return { name: "", phone: "", source: "Barbershop", region: "Arusha", hairKg: "", subtype: "individual", status: "Mpya", notes: "", objection: "", connected: false };
-  return { name: "", phone: "", source: "Instagram/Facebook", region: "Arusha", status: "Mpya", notes: "", objection: "" };
+    return { name: "", phone: "", source: "Barbershop", region: "Arusha", hairKg: "", subtype: "individual", status: "Mpya", notes: "", objection: "", connected: false, nextAction: "Call and confirm supply volume", nextActionDate: today };
+  return { name: "", phone: "", source: "Instagram/Facebook", region: "Arusha", status: "Mpya", notes: "", objection: "", nextAction: "Share distributor requirements", nextActionDate: today };
 };

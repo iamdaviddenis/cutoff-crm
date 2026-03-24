@@ -35,6 +35,10 @@ export const DEMO_LEADS = [
     notes: "Anapanda nyanya, anauliza bei ya lita 10.",
     lastContact: new Date(Date.now() - 2 * 864e5).toISOString(),
     objection: "Bei", createdAt: new Date(Date.now() - 5 * 864e5).toISOString(),
+    nextAction: "Send price comparison and close on pack size",
+    nextActionDate: new Date().toISOString().slice(0, 10),
+    leadScore: 64,
+    intent: "exploring",
   },
   {
     id: 2, type: "sales", name: "Mama Amina", phone: "+255756789012",
@@ -42,6 +46,10 @@ export const DEMO_LEADS = [
     notes: "Ana shamba la mahindi hekta 3. Tayari anataka order.",
     lastContact: new Date(Date.now() - 1 * 864e5).toISOString(),
     objection: "", createdAt: new Date(Date.now() - 3 * 864e5).toISOString(),
+    nextAction: "Confirm delivery point and order quantity",
+    nextActionDate: new Date(Date.now() + 864e5).toISOString().slice(0, 10),
+    leadScore: 86,
+    intent: "buying",
   },
   {
     id: 3, type: "supply", name: "Kinyozi wa Kariakoo", phone: "+255789001122",
@@ -49,6 +57,10 @@ export const DEMO_LEADS = [
     status: "Mpya", notes: "Wanaona habari Instagram.", connected: false,
     lastContact: new Date(Date.now() - 1 * 864e5).toISOString(),
     objection: "", createdAt: new Date(Date.now() - 2 * 864e5).toISOString(),
+    nextAction: "Call and explain collection process",
+    nextActionDate: new Date().toISOString().slice(0, 10),
+    leadScore: 42,
+    intent: "exploring",
   },
   {
     id: 4, type: "supply", name: "Hassan Mwangaza", phone: "+255756334455",
@@ -56,6 +68,10 @@ export const DEMO_LEADS = [
     status: "Anahangaika", notes: "Ana nafasi kubwa — anahitaji mwongozo wa kuwa wakala.",
     connected: false, lastContact: new Date(Date.now() - 3 * 864e5).toISOString(),
     objection: "Hawajui mchakato", createdAt: new Date(Date.now() - 4 * 864e5).toISOString(),
+    nextAction: "Share wakala steps and schedule visit",
+    nextActionDate: new Date(Date.now() - 864e5).toISOString().slice(0, 10),
+    leadScore: 73,
+    intent: "exploring",
   },
   {
     id: 5, type: "distributor", name: "Kilimo Bora Agrovet", phone: "+255712998877",
@@ -63,39 +79,9 @@ export const DEMO_LEADS = [
     notes: "Duka kubwa la pembejeo — wana wateja wengi wa mahindi.",
     lastContact: new Date(Date.now() - 2 * 864e5).toISOString(),
     objection: "TFRA license", createdAt: new Date(Date.now() - 3 * 864e5).toISOString(),
+    nextAction: "Share TFRA checklist and MOQ summary",
+    nextActionDate: new Date(Date.now() + 2 * 864e5).toISOString().slice(0, 10),
+    leadScore: 58,
+    intent: "exploring",
   },
 ];
-
-// Lead intelligence fields
-// leadScore: number (0-100)
-// intent: "buying" | "exploring" | "unclear"
-// recommendedAction: string
-// summary: string (max 2 sentences)
-// nextAction: string
-// nextActionDate: string (ISO date)
-// lastContacted: string (ISO date)
-export interface Lead {
-  id: number;
-  type: string;
-  name: string;
-  phone: string;
-  region: string;
-  source: string;
-  product?: string;
-  status: string;
-  objection?: string;
-  notes?: string;
-  lastContact: string;
-  createdAt: string;
-  subtype?: string;
-  hairKg?: string;
-  connected?: boolean;
-  // AI-driven fields
-  leadScore?: number;
-  intent?: "buying" | "exploring" | "unclear";
-  recommendedAction?: string;
-  summary?: string;
-  nextAction?: string;
-  nextActionDate?: string;
-  lastContacted?: string;
-}
