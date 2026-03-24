@@ -90,6 +90,7 @@ export function InteractionFormPage() {
     setTimeout(() => router.push("/interactions"), 1200);
   }
 
+  if (!viewer && !customers.length) return null;
   if (!viewer) return <AuthRequired />;
 
   return (

@@ -79,9 +79,10 @@ export function DashboardPage() {
   useEffect(() => { load(); }, [load]);
   useRealtimeRefresh("dashboard", ["interactions", "tasks"], load);
 
+  if (loading)              return null;
   if (!viewer)              return <AuthRequired />;
   if (dashboard?.forbidden) return <EmptyPanel title="Admin access only" copy="This page is visible to admins only." />;
-  if (loading || !dashboard) return <p className="subtle">Loading dashboard…</p>;
+  if (!dashboard)           return null;
 
   const categories = Object.entries(dashboard.byCategory || {});
 

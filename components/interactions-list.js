@@ -102,6 +102,7 @@ export function InteractionsListPage() {
   useEffect(() => { load(); }, [load]);
   useRealtimeRefresh("interactions-list", ["interactions"], load);
 
+  if (loading) return null;
   if (!viewer) return <AuthRequired />;
 
   return (

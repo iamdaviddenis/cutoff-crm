@@ -49,6 +49,7 @@ export function CustomersListPage() {
     setSaving(false);
   }
 
+  if (loading) return null;
   if (!viewer) return <AuthRequired />;
 
   const filtered = customers.filter((c) => {

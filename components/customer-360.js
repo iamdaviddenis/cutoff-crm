@@ -138,8 +138,8 @@ export function Customer360Page({ customerId }) {
     load();
   }
 
+  if (loading)  return null;
   if (!viewer)  return <AuthRequired />;
-  if (loading)  return <p className="subtle">Loading…</p>;
   if (!data)    return <p className="subtle">Customer not found.</p>;
 
   const { customer, interactions, tasks } = data;

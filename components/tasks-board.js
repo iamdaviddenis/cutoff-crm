@@ -47,6 +47,7 @@ export function TasksBoardPage() {
     load();
   }
 
+  if (loading) return null;
   if (!viewer) return <AuthRequired />;
 
   const filtered = filter === "all"
