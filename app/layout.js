@@ -1,10 +1,10 @@
-import { Inter } from "next/font/google";
+import { Mulish } from "next/font/google";
 import "./globals.css";
 import { getViewer } from "../lib/auth";
 import TopNav from "../components/topnav";
 import UserMenu from "../components/user-menu";
 
-const inter = Inter({
+const mulish = Mulish({
   subsets: ["latin"],
   variable: "--font-sans",
   display: "swap",
@@ -20,7 +20,7 @@ export default async function RootLayout({ children }) {
 
   if (!viewer) {
     return (
-      <html lang="en" className={inter.variable}>
+      <html lang="en" className={mulish.variable}>
         <body className="font-sans antialiased">
           <div className="auth-shell">{children}</div>
         </body>
@@ -29,7 +29,7 @@ export default async function RootLayout({ children }) {
   }
 
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en" className={mulish.variable}>
       <body className="font-sans antialiased">
         <div className="shell">
           <TopNav userMenu={<UserMenu viewer={viewer} />} />

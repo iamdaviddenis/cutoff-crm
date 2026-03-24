@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -53,9 +54,21 @@ export default function TopNav({ userMenu }) {
   return (
     <header className="topnav">
       <div className="topnav-inner">
-        <Link href="/dashboard" className="topnav-brand">
-          <span className="topnav-brand-name">CutOff CRM</span>
-          <span className="topnav-brand-sub">Command Center</span>
+        <Link href="/dashboard" className="mr-10 flex shrink-0 items-center gap-3 no-underline">
+          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-[0_1px_4px_rgba(0,0,0,0.18)] ring-1 ring-white/30">
+            <Image
+              src="/cutoff-logo.png"
+              alt="CutOff CRM"
+              width={28}
+              height={28}
+              className="object-contain"
+              priority
+            />
+          </span>
+          <span className="flex flex-col justify-center">
+            <span className="topnav-brand-name">CutOff CRM</span>
+            <span className="topnav-brand-sub">Command Center</span>
+          </span>
         </Link>
 
         <nav className="topnav-links">

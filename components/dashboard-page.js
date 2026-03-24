@@ -1,9 +1,17 @@
 "use client";
 
+import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { AuthRequired, EmptyPanel } from "./system-state";
 import { useRealtimeRefresh } from "./use-realtime-refresh";
+
+function dashboardGreeting(viewer) {
+  const h = new Date().getHours();
+  const part = h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
+  const name = viewer?.fullName?.trim()?.split(/\s+/)[0];
+  return name ? `${part}, ${name}` : `${part}`;
+}
 
 const CATEGORY_LABELS = {
   sales: "Sales",
@@ -51,7 +59,7 @@ function WeeklyReportPanel({ onClose }) {
               <button
                 type="button"
                 onClick={copy}
-                className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"
+                className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-brand/40 hover:bg-brand/5 hover:text-brand-800"
               >
                 {copied ? "Copied" : "Copy"}
               </button>
@@ -59,7 +67,7 @@ function WeeklyReportPanel({ onClose }) {
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"
+              className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-brand/40 hover:bg-brand/5"
             >
               Close
             </button>
@@ -82,16 +90,16 @@ function WeeklyReportPanel({ onClose }) {
 function MetricCard({ label, value, hint, alert }) {
   return (
     <div
-      className={`rounded-2xl border bg-white p-6 transition-shadow hover:shadow-card-lg ${
+      className={`group rounded-2xl border bg-white p-6 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-card-lg ${
         alert
-          ? "border-rose-200/80 shadow-[0_1px_2px_rgba(244,63,94,0.06),0_4px_16px_rgba(244,63,94,0.06)]"
-          : "border-slate-200/80 shadow-card"
+          ? "border-rose-200/80 shadow-[0_1px_2px_rgba(244,63,94,0.06),0_4px_16px_rgba(244,63,94,0.06)] hover:border-rose-300/90"
+          : "border-slate-200/80 shadow-card hover:border-brand/35 hover:shadow-[0_4px_24px_rgba(85,166,48,0.12)]"
       }`}
     >
       <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500">{label}</p>
       <p
         className={`mt-3 text-3xl font-semibold tabular-nums tracking-tight ${
-          alert ? "text-rose-600" : "text-slate-900"
+          alert ? "text-rose-600" : "text-slate-900 group-hover:text-brand-800"
         }`}
       >
         {value}
@@ -144,28 +152,87 @@ export function DashboardPage() {
 
   const categories = Object.entries(dashboard.byCategory || {});
 
+  const dateLine = new Date().toLocaleDateString(undefined, {
+    weekday: "long",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+  const roleLabel = viewer?.role === "admin" ? "Admin" : "Staff";
+  const openTaskCount = dashboard.openTasks ?? 0;
+  const dueCount = dashboard.dueToday?.length ?? 0;
+
   return (
-    <div className="mx-auto w-full max-w-7xl space-y-8 pb-10">
-      {/* Header */}
-      <header className="space-y-1">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">Overview</p>
-        <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Dashboard</h1>
-            <p className="mt-1 max-w-xl text-sm text-slate-500">
-              Pipeline health, recent activity, and what needs attention today.
+    <div className="mx-auto w-full max-w-7xl space-y-10 pb-12">
+      {/* Hero */}
+      <section className="relative overflow-hidden rounded-3xl border border-slate-200/90 bg-gradient-to-br from-white via-white to-[#f3f8ef] p-7 shadow-card sm:p-9">
+        <div
+          className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-brand/[0.09] blur-3xl"
+          aria-hidden
+        />
+        <div className="pointer-events-none absolute -bottom-24 -left-12 h-48 w-48 rounded-full bg-slate-200/30 blur-3xl" aria-hidden />
+
+        <div className="relative flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
+          <div className="flex min-w-0 flex-col gap-6 sm:flex-row sm:items-start sm:gap-6">
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-white shadow-[0_4px_14px_rgba(15,23,42,0.08)] ring-1 ring-slate-200/90">
+              <Image
+                src="/cutoff-logo.png"
+                alt="CutOff CRM"
+                width={40}
+                height={40}
+                className="object-contain"
+                priority
+              />
+            </div>
+
+            <div className="min-w-0 space-y-4">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center gap-2 rounded-full bg-brand/12 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-brand-800 ring-1 ring-brand/20">
+                  <span className="relative flex h-2 w-2">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand opacity-40" />
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-brand" />
+                  </span>
+                  Live
+                </span>
+                <span className="rounded-full bg-slate-100 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.1em] text-slate-600 ring-1 ring-slate-200/80">
+                  {roleLabel}
+                </span>
+                <span
+                  className={`rounded-full px-3 py-1 text-[11px] font-semibold ring-1 ${
+                    openTaskCount > 0
+                      ? "bg-amber-50 text-amber-900 ring-amber-200/80"
+                      : "bg-emerald-50 text-emerald-900 ring-emerald-200/70"
+                  }`}
+                >
+                  {openTaskCount} open task{openTaskCount === 1 ? "" : "s"}
+                </span>
+                {dueCount > 0 && (
+                  <span className="rounded-full bg-rose-50 px-3 py-1 text-[11px] font-semibold text-rose-800 ring-1 ring-rose-200/80">
+                    {dueCount} follow-up{dueCount === 1 ? "" : "s"} due
+                  </span>
+                )}
+              </div>
+
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-brand-700">Overview</p>
+                <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+                  {dashboardGreeting(viewer)}
+                </h1>
+                <p className="mt-2 max-w-2xl text-[15px] leading-relaxed text-slate-600">
+                  Pipeline health, live interactions, and priorities — in one place.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex shrink-0 flex-col items-start gap-1 rounded-2xl border border-slate-200/80 bg-white/80 px-5 py-4 text-sm shadow-sm backdrop-blur-sm sm:items-end">
+            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400">Today</p>
+            <p className="max-w-[14rem] text-right text-sm font-semibold leading-snug text-slate-800 sm:max-w-none">
+              {dateLine}
             </p>
           </div>
-          <p className="text-xs font-medium text-slate-400 tabular-nums">
-            {new Date().toLocaleDateString(undefined, {
-              weekday: "long",
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-            })}
-          </p>
         </div>
-      </header>
+      </section>
 
       {/* KPI row */}
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -203,7 +270,7 @@ export function DashboardPage() {
             </div>
             <Link
               href="/customers"
-              className="shrink-0 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-100"
+              className="shrink-0 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-brand/40 hover:bg-brand/5 hover:text-brand-800"
             >
               View all
             </Link>
@@ -212,16 +279,16 @@ export function DashboardPage() {
             {[
               { label: "Hot", key: "hot", bar: "bg-rose-500" },
               { label: "Warm", key: "warm", bar: "bg-amber-400" },
-              { label: "Cold", key: "cold", bar: "bg-slate-300" },
+              { label: "Cold", key: "cold", bar: "bg-brand" },
             ].map(({ label, key, bar }) => {
               const count = dashboard.pipeline?.[key] ?? 0;
               return (
                 <div
                   key={key}
-                  className="rounded-xl border border-slate-100 bg-slate-50/80 p-4 text-center shadow-sm"
+                  className="rounded-xl border border-slate-100 bg-slate-50/80 p-4 text-center shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-brand/25 hover:bg-white hover:shadow-md"
                 >
                   <div className={`mx-auto mb-3 h-1 w-8 rounded-full ${bar}`} aria-hidden />
-                  <p className="text-xs font-medium text-slate-500">{label}</p>
+                  <p className="text-xs font-semibold text-slate-500">{label}</p>
                   <p className="mt-1 text-2xl font-semibold tabular-nums tracking-tight text-slate-900">{count}</p>
                 </div>
               );
@@ -254,7 +321,7 @@ export function DashboardPage() {
                 <li key={c.id}>
                   <Link
                     href={`/customers/${c.id}`}
-                    className="flex items-start justify-between gap-3 rounded-xl border border-slate-100 bg-slate-50/50 px-4 py-3 transition hover:border-slate-200 hover:bg-white hover:shadow-sm"
+                    className="flex items-start justify-between gap-3 rounded-xl border border-slate-100 bg-slate-50/50 px-4 py-3 transition-all duration-200 hover:border-brand/30 hover:bg-white hover:shadow-md"
                   >
                     <div className="min-w-0">
                       <p className="truncate text-sm font-medium text-slate-900">{c.name}</p>
@@ -297,7 +364,7 @@ export function DashboardPage() {
               </div>
               <Link
                 href="/interactions/new"
-                className="inline-flex items-center justify-center rounded-lg bg-slate-900 px-4 py-2 text-xs font-medium text-white shadow-sm transition hover:bg-slate-800"
+                className="inline-flex items-center justify-center rounded-lg bg-brand px-4 py-2 text-xs font-semibold text-brand-foreground shadow-sm transition hover:bg-brand-700 hover:shadow-md active:scale-[0.98]"
               >
                 Log interaction
               </Link>
@@ -311,14 +378,17 @@ export function DashboardPage() {
             ) : (
               <ul className="divide-y divide-slate-100">
                 {dashboard.recentFeed.map((item) => (
-                  <li key={item.id} className="flex gap-4 py-4 first:pt-0 last:pb-0">
+                  <li
+                    key={item.id}
+                    className="group flex gap-4 rounded-xl py-3 pl-2 pr-2 transition-colors duration-200 first:pt-1 last:pb-1 hover:bg-slate-50/90"
+                  >
                     <span
                       className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${
                         item.urgency === "high"
                           ? "bg-rose-500"
                           : item.urgency === "medium"
                             ? "bg-amber-400"
-                            : "bg-emerald-400"
+                            : "bg-brand"
                       }`}
                       aria-hidden
                     />
@@ -333,9 +403,13 @@ export function DashboardPage() {
                         <span>{item.channel}</span>
                         <span className="text-slate-300">·</span>
                         <span className="tabular-nums">{new Date(item.created_at).toLocaleString()}</span>
-                        {item.urgency === "high" && (
-                          <span className="rounded-full bg-rose-50 px-2 py-0.5 text-[10px] font-semibold capitalize text-rose-700 ring-1 ring-rose-100">
+                        {item.urgency === "high" ? (
+                          <span className="rounded-full bg-rose-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-rose-700 ring-1 ring-rose-100">
                             Urgent
+                          </span>
+                        ) : (
+                          <span className="rounded-full bg-brand/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand-800 ring-1 ring-brand/15">
+                            {item.urgency === "medium" ? "Medium" : "On track"}
                           </span>
                         )}
                       </p>
@@ -415,7 +489,7 @@ export function DashboardPage() {
             <button
               type="button"
               onClick={() => setShowReport(true)}
-              className="mt-5 w-full rounded-lg bg-slate-900 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-slate-800"
+              className="mt-5 w-full rounded-lg bg-brand py-2.5 text-sm font-semibold text-brand-foreground shadow-sm transition hover:bg-brand-700 hover:shadow-md active:scale-[0.99]"
             >
               Generate weekly report
             </button>

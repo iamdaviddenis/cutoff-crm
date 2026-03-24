@@ -9,6 +9,15 @@ module.exports = {
   },
   theme: {
     extend: {
+      colors: {
+        brand: {
+          DEFAULT: "#55A630",
+          600: "#489128",
+          700: "#3d7d22",
+          800: "#33691d",
+          foreground: "#ffffff",
+        },
+      },
       fontFamily: {
         sans: ["var(--font-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
       },
