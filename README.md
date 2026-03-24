@@ -1,61 +1,56 @@
-# CutOff Recycle CRM
+# CutOff CRM
 
-AI-powered CRM for CutOff Recycle Limited — tracks Sales, Supply, and Distributor leads with WhatsApp AI follow-up generation.
+Next.js + Supabase CRM for call intelligence, follow-up tasks, and admin monitoring.
 
-## Features
-- **Sales leads** — farmers buying Rutubisha, Vuna, McheKuza
-- **Supply leads** — hair collectors (individual & agents) by region
-- **Distributor leads** — agrovets & fertilizer shops
-- **AI follow-up messages** — paste WhatsApp chat, AI reads and drafts replies
-- **Weekly report** — AI-generated summary every Friday
-- **Collection center routing** — auto-shows nearest hub (Dar, Kilimanjaro, Arusha)
-- **Target region alerts** — Tanga & Manyara highlighted
+## Stack
+
+- Next.js App Router
+- Supabase Auth + Postgres + Realtime
+- Native route handlers under `app/api`
 
 ## Setup
 
-### 1. Install dependencies
+1. Install dependencies
+
 ```bash
 npm install
 ```
 
-### 2. Set API key
+2. Add environment variables
+
 ```bash
-cp .env.example .env
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
 ```
-Edit `.env` and add your Anthropic API key from https://console.anthropic.com
 
-### 3. Run locally
+3. Apply the schema in [supabase/schema.sql](./supabase/schema.sql)
+
+4. Start the app
+
 ```bash
-npm start
+npm run dev
 ```
 
-### 4. Deploy to Vercel
+## Routes
 
-**Option A — Vercel CLI:**
-```bash
-npx vercel
-```
+- `/calls/new` fast call logging
+- `/calls` calls list with detail drawer
+- `/tasks` task management
+- `/admin` admin dashboard
+- `/sign-in` Supabase magic-link auth
 
-**Option B — Vercel Dashboard:**
-1. Push this repo to GitHub
-2. Go to https://vercel.com/new
-3. Import your repo
-4. Add environment variable: `REACT_APP_ANTHROPIC_API_KEY` = your key
-5. Deploy
+## API
 
-## Project structure
-```
-src/
-  App.js          — main UI & components
-  App.css         — all styles
-  constants.js    — products, regions, centers, demo data
-  utils.js        — helpers, AI call function
-  index.js        — entry point
-  index.css       — global styles
-```
+- `POST /api/calls`
+- `GET /api/calls`
+- `GET /api/customers`
+- `GET /api/admin/dashboard`
+- `GET /api/tasks`
+- `POST /api/tasks`
+- `PATCH /api/tasks/:id`
 
-## Updating collection centers
-Edit `src/constants.js` → `COLLECTION_CENTERS` object.
+## Notes
 
-## Adding new regions
-Edit `src/constants.js` → `REGIONS` array and `COLLECTION_CENTERS`.
+- Role is read from Supabase user metadata: `admin` or `staff`
+- Calls and tasks are wired for Supabase Realtime subscriptions
+- `analyzeCall()` is mock keyword logic today and can be swapped for OpenAI or Claude later
