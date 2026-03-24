@@ -95,7 +95,7 @@ export function CustomersListPage() {
             <div className="grid-two">
               <label className="field">
                 <span>Region</span>
-                <input value={newForm.region} onChange={(e) => setNewForm((f) => ({ ...f, region: e.target.value }))} placeholder="e.g. Nairobi" />
+                <input value={newForm.region} onChange={(e) => setNewForm((f) => ({ ...f, region: e.target.value }))} placeholder="e.g. Dar es Salaam" />
               </label>
               <label className="field">
                 <span>Type</span>
