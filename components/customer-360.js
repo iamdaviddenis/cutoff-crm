@@ -4,11 +4,127 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { AuthRequired } from "./system-state";
-import { CHANNEL_LABELS, OUTCOME_LABELS } from "../lib/ai";
+import { CHANNELS, DIRECTIONS, OUTCOMES, CHANNEL_LABELS, OUTCOME_LABELS } from "../lib/ai";
 
 const PRIORITY_COLORS  = { high: "danger", medium: "warn", low: "" };
 const SCORE_COLORS     = { hot: "#a6432d", warm: "#9c4d15", cold: "#5d6a60" };
 const SCORE_ICONS      = { hot: "🔥", warm: "🟡", cold: "🔵" };
+
+function EditInteractionPanel({ interaction, onClose, onSaved }) {
+  const [form, setForm] = useState({
+    channel:   interaction.channel   || "call",
+    direction: interaction.direction || "outgoing",
+    content:   interaction.content   || "",
+    outcome:   interaction.outcome   || "",
+    duration:  interaction.duration  ?? "",
+  });
+  const [saving,   setSaving]   = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  async function save(e) {
+    e.preventDefault();
+    setSaving(true);
+    await fetch(`/api/interactions/${interaction.id}`, {
+      method:  "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body:    JSON.stringify({
+        ...form,
+        duration: form.duration !== "" ? Number(form.duration) : null,
+        outcome:  form.outcome  || null,
+      }),
+    });
+    setSaving(false);
+    onSaved();
+    onClose();
+  }
+
+  async function deleteInteraction() {
+    if (!confirm("Delete this interaction? This cannot be undone.")) return;
+    setDeleting(true);
+    await fetch(`/api/interactions/${interaction.id}`, { method: "DELETE" });
+    onSaved();
+    onClose();
+  }
+
+  return (
+    <div className="drawer-backdrop" onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <aside className="drawer">
+        <div className="section-head">
+          <div>
+            <p className="eyebrow">Interaction</p>
+            <h2 style={{ margin: "0.2rem 0 0" }}>Edit entry</h2>
+          </div>
+          <button className="ghost-btn" onClick={onClose} type="button">Close</button>
+        </div>
+
+        <form className="form-stack" onSubmit={save}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
+            <label className="field">
+              <span>Channel</span>
+              <select value={form.channel} onChange={(e) => setForm((f) => ({ ...f, channel: e.target.value }))}>
+                {CHANNELS.map((v) => <option key={v} value={v}>{CHANNEL_LABELS[v]}</option>)}
+              </select>
+            </label>
+            <label className="field">
+              <span>Direction</span>
+              <select value={form.direction} onChange={(e) => setForm((f) => ({ ...f, direction: e.target.value }))}>
+                {DIRECTIONS.map((v) => <option key={v} value={v}>{v.charAt(0).toUpperCase() + v.slice(1)}</option>)}
+              </select>
+            </label>
+          </div>
+
+          <label className="field">
+            <span>Summary *</span>
+            <textarea
+              value={form.content}
+              onChange={(e) => setForm((f) => ({ ...f, content: e.target.value }))}
+              required
+              style={{ minHeight: "140px", resize: "vertical" }}
+            />
+          </label>
+
+          <label className="field">
+            <span>Outcome</span>
+            <select value={form.outcome} onChange={(e) => setForm((f) => ({ ...f, outcome: e.target.value }))}>
+              <option value="">— None —</option>
+              {OUTCOMES.map((v) => <option key={v} value={v}>{OUTCOME_LABELS[v]}</option>)}
+            </select>
+          </label>
+
+          {form.channel === "call" && (
+            <label className="field">
+              <span>Duration (minutes)</span>
+              <input
+                type="number"
+                min="0"
+                value={form.duration}
+                onChange={(e) => setForm((f) => ({ ...f, duration: e.target.value }))}
+                placeholder="e.g. 5"
+              />
+            </label>
+          )}
+
+          <button className="primary-btn" disabled={saving} type="submit">
+            {saving ? "Saving…" : "Save changes"}
+          </button>
+        </form>
+
+        <div style={{ marginTop: "1.5rem", paddingTop: "1.25rem", borderTop: "1px solid rgba(24,33,27,0.08)" }}>
+          <p className="eyebrow" style={{ color: "#9d3823", marginBottom: "0.5rem" }}>Danger zone</p>
+          <button
+            className="ghost-btn"
+            style={{ color: "#9d3823", borderColor: "rgba(157,56,35,0.25)", width: "100%" }}
+            onClick={deleteInteraction}
+            disabled={deleting}
+            type="button"
+          >
+            {deleting ? "Deleting…" : "Delete interaction"}
+          </button>
+        </div>
+      </aside>
+    </div>
+  );
+}
 
 function WhatsAppPanel({ customerId, onClose }) {
   const [message, setMessage]   = useState("");
@@ -185,8 +301,9 @@ export function Customer360Page({ customerId }) {
   const [viewer,     setViewer]     = useState(null);
   const [data,       setData]       = useState(null);
   const [loading,    setLoading]    = useState(true);
-  const [showWA,     setShowWA]     = useState(false);
-  const [showEdit,   setShowEdit]   = useState(false);
+  const [showWA,             setShowWA]             = useState(false);
+  const [showEdit,           setShowEdit]           = useState(false);
+  const [editingInteraction, setEditingInteraction] = useState(null);
   const [nextAction, setNextAction] = useState({ date: "", note: "" });
   const [savingNA,   setSavingNA]   = useState(false);
   const [savedNA,    setSavedNA]    = useState(false);
@@ -310,10 +427,20 @@ export function Customer360Page({ customerId }) {
                           💡 {insight.suggested_action}
                         </p>
                       )}
-                      <p style={{ margin: "0.3rem 0 0", color: "#5d6a60", fontSize: "0.75rem" }}>
-                        {new Date(item.created_at).toLocaleString()}
-                        {item.duration ? ` · ${item.duration} min` : ""}
-                      </p>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "0.3rem" }}>
+                        <p style={{ margin: 0, color: "#5d6a60", fontSize: "0.75rem" }}>
+                          {new Date(item.created_at).toLocaleString()}
+                          {item.duration ? ` · ${item.duration} min` : ""}
+                        </p>
+                        <button
+                          className="ghost-btn"
+                          style={{ padding: "0.2rem 0.6rem", fontSize: "0.72rem" }}
+                          onClick={() => setEditingInteraction(item)}
+                          type="button"
+                        >
+                          Edit
+                        </button>
+                      </div>
                     </div>
                   </div>
                 );
@@ -433,8 +560,15 @@ export function Customer360Page({ customerId }) {
         </aside>
       </div>
 
-      {showWA   && <WhatsAppPanel customerId={customerId} onClose={() => setShowWA(false)} />}
-      {showEdit && <EditCustomerPanel customer={customer} onClose={() => setShowEdit(false)} onSaved={load} />}
+      {showWA            && <WhatsAppPanel customerId={customerId} onClose={() => setShowWA(false)} />}
+      {showEdit          && <EditCustomerPanel customer={customer} onClose={() => setShowEdit(false)} onSaved={load} />}
+      {editingInteraction && (
+        <EditInteractionPanel
+          interaction={editingInteraction}
+          onClose={() => setEditingInteraction(null)}
+          onSaved={load}
+        />
+      )}
     </div>
   );
 }
