@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { analyzeInteraction } from "../../../lib/ai";
+import { analyzeInteraction, computeLeadScore } from "../../../lib/ai";
 import { requireViewer } from "../../../lib/auth";
 import { createSupabaseServerClient } from "../../../lib/supabase/server";
 import { isSupabaseConfigured } from "../../../lib/supabase/config";
@@ -45,7 +45,7 @@ export async function POST(request) {
     return NextResponse.json({ error: auth.error.message }, { status: auth.error.status });
   }
 
-  const payload = await request.json();
+  const payload  = await request.json();
   const supabase = createSupabaseServerClient();
 
   // Auto-create customer if name provided instead of id
@@ -54,9 +54,9 @@ export async function POST(request) {
     const { data: customer, error: customerError } = await supabase
       .from("customers")
       .insert({
-        name: payload.customer_name,
-        phone: payload.customer_phone || null,
-        type: payload.customer_type || "lead",
+        name:   payload.customer_name,
+        phone:  payload.customer_phone || null,
+        type:   payload.customer_type  || "lead",
         source: "manual",
       })
       .select("id")
@@ -94,7 +94,7 @@ export async function POST(request) {
   // AI analysis
   const insight = analyzeInteraction(interaction.content);
   const { error: insightError } = await supabase.from("ai_insights").insert({
-    interaction_id:   interaction.id,
+    interaction_id: interaction.id,
     ...insight,
   });
 
@@ -102,11 +102,24 @@ export async function POST(request) {
     return NextResponse.json({ error: insightError.message }, { status: 500 });
   }
 
+  // Auto-update customer lead score based on this interaction
+  const newScore = computeLeadScore(interaction.outcome, insight.sentiment);
+  await supabase
+    .from("customers")
+    .update({ lead_score: newScore })
+    .eq("id", customerId);
+
   // Auto-create task on follow_up outcome or high urgency
   let task = null;
   if (interaction.outcome === "follow_up" || insight.urgency === "high") {
     const dueDate = new Date();
     dueDate.setDate(dueDate.getDate() + (insight.urgency === "high" ? 1 : 2));
+
+    // Also set next_action_date on the customer
+    await supabase
+      .from("customers")
+      .update({ next_action_date: dueDate.toISOString(), next_action_note: insight.suggested_action })
+      .eq("id", customerId);
 
     const { data: createdTask, error: taskError } = await supabase
       .from("tasks")

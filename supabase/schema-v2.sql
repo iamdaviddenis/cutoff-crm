@@ -56,14 +56,18 @@ ON CONFLICT (id) DO UPDATE SET
 
 -- ── 2. Customers ──────────────────────────────────────────────
 CREATE TABLE public.customers (
-  id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  name       text NOT NULL,
-  phone      text,
-  region     text,
-  type       text NOT NULL DEFAULT 'lead'
-               CHECK (type IN ('farmer', 'distributor', 'lead')),
-  source     text,
-  created_at timestamptz NOT NULL DEFAULT now()
+  id               uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  name             text NOT NULL,
+  phone            text,
+  region           text,
+  type             text NOT NULL DEFAULT 'lead'
+                     CHECK (type IN ('farmer', 'distributor', 'lead')),
+  source           text,
+  lead_score       text NOT NULL DEFAULT 'cold'
+                     CHECK (lead_score IN ('hot', 'warm', 'cold')),
+  next_action_date timestamptz,
+  next_action_note text,
+  created_at       timestamptz NOT NULL DEFAULT now()
 );
 
 -- ── 3. Interactions (primary entity) ─────────────────────────
@@ -83,12 +87,12 @@ CREATE TABLE public.interactions (
 
 -- ── 4. AI Insights ────────────────────────────────────────────
 CREATE TABLE public.ai_insights (
-  id             uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  interaction_id uuid NOT NULL UNIQUE REFERENCES public.interactions(id) ON DELETE CASCADE,
-  sentiment      text NOT NULL CHECK (sentiment IN ('positive', 'neutral', 'negative')),
-  urgency        text NOT NULL CHECK (urgency IN ('low', 'medium', 'high')),
-  category       text NOT NULL CHECK (category IN ('sales', 'support', 'logistics', 'partnership')),
-  intent         text,
+  id               uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  interaction_id   uuid NOT NULL UNIQUE REFERENCES public.interactions(id) ON DELETE CASCADE,
+  sentiment        text NOT NULL CHECK (sentiment IN ('positive', 'neutral', 'negative')),
+  urgency          text NOT NULL CHECK (urgency IN ('low', 'medium', 'high')),
+  category         text NOT NULL CHECK (category IN ('sales', 'support', 'logistics', 'partnership')),
+  intent           text,
   suggested_action text NOT NULL
 );
 
@@ -112,6 +116,8 @@ CREATE TABLE public.tasks (
 CREATE INDEX interactions_customer_id_idx  ON public.interactions(customer_id);
 CREATE INDEX interactions_staff_id_idx     ON public.interactions(staff_id);
 CREATE INDEX interactions_created_at_idx   ON public.interactions(created_at DESC);
+CREATE INDEX customers_lead_score_idx      ON public.customers(lead_score);
+CREATE INDEX customers_next_action_idx     ON public.customers(next_action_date);
 CREATE INDEX tasks_assigned_to_idx         ON public.tasks(assigned_to);
 CREATE INDEX tasks_status_idx              ON public.tasks(status);
 CREATE INDEX tasks_due_date_idx            ON public.tasks(due_date);
