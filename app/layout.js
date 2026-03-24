@@ -1,0 +1,41 @@
+import { Inter } from "next/font/google";
+import "./globals.css";
+import { getViewer } from "../lib/auth";
+import TopNav from "../components/topnav";
+import UserMenu from "../components/user-menu";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
+});
+
+export const metadata = {
+  title: "CutOff CRM — Command Center",
+  description: "Customer Command Center built with Next.js + Supabase.",
+};
+
+export default async function RootLayout({ children }) {
+  const viewer = await getViewer();
+
+  if (!viewer) {
+    return (
+      <html lang="en" className={inter.variable}>
+        <body className="font-sans antialiased">
+          <div className="auth-shell">{children}</div>
+        </body>
+      </html>
+    );
+  }
+
+  return (
+    <html lang="en" className={inter.variable}>
+      <body className="font-sans antialiased">
+        <div className="shell">
+          <TopNav userMenu={<UserMenu viewer={viewer} />} />
+          <main className="main">{children}</main>
+        </div>
+      </body>
+    </html>
+  );
+}
