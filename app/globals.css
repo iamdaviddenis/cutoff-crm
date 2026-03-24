@@ -89,7 +89,8 @@ textarea {
 
 .page-grid,
 .metric-grid,
-.grid-two {
+.grid-two,
+.setup-grid {
   display: grid;
   gap: 1rem;
 }
@@ -107,11 +108,16 @@ textarea {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.setup-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .card,
 .metric-card,
 .drawer,
 .notice,
-.empty-panel {
+.empty-panel,
+.setup-card {
   border-radius: 1.25rem;
   border: 1px solid rgba(24, 33, 27, 0.08);
   background: rgba(255, 255, 255, 0.82);
@@ -225,6 +231,12 @@ textarea {
   padding: 1rem 1.1rem;
 }
 
+.setup-card {
+  padding: 1.25rem;
+  border-color: rgba(172, 93, 26, 0.18);
+  background: rgba(247, 233, 220, 0.72);
+}
+
 .notice.warning {
   border-color: rgba(172, 93, 26, 0.2);
   background: rgba(247, 233, 220, 0.9);
@@ -240,6 +252,47 @@ textarea {
   padding-left: 1.2rem;
   line-height: 1.7;
   color: #3f473f;
+}
+
+.simple-list.ordered {
+  margin-top: 0;
+}
+
+.code-list {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.code-list code,
+.subtle code {
+  display: inline-block;
+  width: fit-content;
+  padding: 0.4rem 0.6rem;
+  border-radius: 0.75rem;
+  background: rgba(24, 33, 27, 0.07);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.82rem;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.status-badge.ok {
+  background: rgba(59, 138, 112, 0.14);
+  color: #245745;
+}
+
+.status-badge.warn {
+  background: rgba(172, 93, 26, 0.14);
+  color: #9c4d15;
 }
 
 .table-shell {
@@ -375,7 +428,8 @@ textarea {
 
   .metric-grid,
   .grid-two,
-  .page-grid {
+  .page-grid,
+  .setup-grid {
     grid-template-columns: 1fr;
   }
 

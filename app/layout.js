@@ -1,6 +1,7 @@
 import Link from "next/link";
 import "./globals.css";
 import { getViewer } from "../lib/auth";
+import { isSupabaseConfigured } from "../lib/supabase/config";
 
 export const metadata = {
   title: "CutOff CRM",
@@ -25,10 +26,16 @@ export default async function RootLayout({ children }) {
               <Link href="/calls">Calls</Link>
               <Link href="/tasks">Tasks</Link>
               <Link href="/admin">Admin</Link>
+              {!isSupabaseConfigured && <Link href="/setup">Setup</Link>}
             </nav>
 
             <div className="viewer">
-              {viewer ? (
+              {!isSupabaseConfigured ? (
+                <>
+                  <strong>Setup mode</strong>
+                  <span>Supabase required</span>
+                </>
+              ) : viewer ? (
                 <>
                   <strong>{viewer.fullName}</strong>
                   <span>{viewer.role}</span>
