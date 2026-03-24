@@ -90,20 +90,24 @@ export function DashboardPage() {
       {/* Metrics row */}
       <div className="metric-grid">
         <div className="metric-card">
-          <span>Interactions today</span>
+          <span className="metric-label">Interactions today</span>
           <strong>{dashboard.interactionsToday}</strong>
+          <span className="metric-desc">All logged customer touchpoints</span>
         </div>
         <div className={`metric-card ${dashboard.highUrgency > 0 ? "alert" : ""}`}>
-          <span>High urgency</span>
+          <span className="metric-label">High urgency</span>
           <strong>{dashboard.highUrgency}</strong>
+          <span className="metric-desc">Immediate attention needed</span>
         </div>
         <div className="metric-card">
-          <span>Open tasks</span>
+          <span className="metric-label">Open tasks</span>
           <strong>{dashboard.openTasks}</strong>
+          <span className="metric-desc">Pending and in-progress</span>
         </div>
         <div className={`metric-card ${dashboard.overdueTasks > 0 ? "alert" : ""}`}>
-          <span>Overdue tasks</span>
+          <span className="metric-label">Overdue tasks</span>
           <strong>{dashboard.overdueTasks}</strong>
+          <span className="metric-desc">Past due date, unresolved</span>
         </div>
       </div>
 

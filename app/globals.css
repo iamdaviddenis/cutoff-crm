@@ -4,8 +4,11 @@ html, body {
   margin: 0;
   padding: 0;
   font-family: "DM Sans", system-ui, sans-serif;
-  background: #f0ebe3;
+  background: linear-gradient(160deg, #f5f0e8 0%, #ede6d8 100%);
+  min-height: 100vh;
   color: #18211b;
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
 }
 
 a { color: inherit; text-decoration: none; }
@@ -112,7 +115,7 @@ button, input, select, textarea { font: inherit; }
   min-width: 0;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(180deg, #f8f4ed 0%, #efe7da 100%);
+  background: linear-gradient(160deg, #f5f0e8 0%, #ede6d8 100%);
   min-height: 100vh;
 }
 
@@ -135,7 +138,7 @@ button, input, select, textarea { font: inherit; }
 /* ── Main ──────────────────────────────────────── */
 .main {
   flex: 1;
-  padding: 1.5rem;
+  padding: 2rem 2.5rem;
   max-width: 1280px;
   width: 100%;
 }
@@ -216,9 +219,10 @@ button, input, select, textarea { font: inherit; }
 .eyebrow {
   margin: 0;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-size: 0.7rem;
-  color: #5d6a60;
+  letter-spacing: 0.13em;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #3b8a70;
 }
 
 .page-header {
@@ -226,48 +230,58 @@ button, input, select, textarea { font: inherit; }
   align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.75rem;
 }
 
-.page-header h1 { margin: 0.2rem 0 0; font-size: 1.4rem; }
-.page-header p  { margin: 0.3rem 0 0; color: #5d6a60; font-size: 0.88rem; }
+.page-header h1 { margin: 0.3rem 0 0; font-size: 2rem; font-weight: 800; letter-spacing: -0.025em; line-height: 1.15; }
+.page-header p  { margin: 0.4rem 0 0; color: #5d6a60; font-size: 0.9rem; }
 
 /* ── Cards ─────────────────────────────────────── */
 .card, .metric-card, .drawer, .notice, .empty-panel, .setup-card {
-  border-radius: 1.1rem;
-  border: 1px solid rgba(24,33,27,0.08);
-  background: rgba(255,255,255,0.82);
-  box-shadow: 0 4px 16px rgba(61,50,29,0.06);
+  border-radius: 1.35rem;
+  border: 1px solid rgba(24,33,27,0.07);
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(24,33,27,0.04), 0 8px 32px rgba(24,33,27,0.06);
 }
 
-.card { padding: 1.25rem; }
+.card { padding: 1.75rem; }
 
 .auth-card {
-  background: rgba(255,255,255,0.9);
-  border-radius: 1.1rem;
-  border: 1px solid rgba(24,33,27,0.08);
-  box-shadow: 0 4px 16px rgba(61,50,29,0.06);
-  padding: 2rem;
+  background: #ffffff;
+  border-radius: 1.35rem;
+  border: 1px solid rgba(24,33,27,0.07);
+  box-shadow: 0 2px 8px rgba(24,33,27,0.04), 0 8px 32px rgba(24,33,27,0.06);
+  padding: 2.25rem;
   width: 100%;
   max-width: 420px;
 }
 
-.metric-card { padding: 1.1rem 1.25rem; }
+.metric-card { padding: 1.5rem 1.75rem; }
 
-.metric-card span {
+.metric-card .metric-label {
   display: block;
   color: #5d6a60;
-  font-size: 0.78rem;
+  font-size: 0.75rem;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.5rem;
 }
 
 .metric-card strong {
   display: block;
-  margin-top: 0.4rem;
-  font-size: 2rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-size: 2.75rem;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1;
+}
+
+.metric-card .metric-desc {
+  display: block;
+  margin-top: 0.5rem;
+  color: #8a9490;
+  font-size: 0.78rem;
+  line-height: 1.45;
 }
 
 .metric-card.alert strong { color: #a6432d; }
@@ -276,26 +290,26 @@ button, input, select, textarea { font: inherit; }
 .metric-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 1rem;
-  margin-bottom: 1.25rem;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
 }
 
 .page-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.6fr);
-  gap: 1rem;
+  gap: 1.25rem;
 }
 
 .grid-two {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
+  gap: 1.25rem;
 }
 
 .setup-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
+  gap: 1.25rem;
 }
 
 /* ── Section head ──────────────────────────────── */
@@ -304,16 +318,19 @@ button, input, select, textarea { font: inherit; }
   justify-content: space-between;
   gap: 1rem;
   align-items: flex-start;
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
 }
 
 .section-head h1, .section-head h2,
 .card h1, .card h2, .list-card h3 { margin: 0; }
 
+.card h1 { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.025em; }
+.card h2 { font-size: 1.15rem; font-weight: 700; letter-spacing: -0.015em; }
+
 .subtle {
-  margin: 0.35rem 0 0;
-  color: #5d6a60;
-  line-height: 1.6;
+  margin: 0.4rem 0 0;
+  color: #6e7d73;
+  line-height: 1.65;
   font-size: 0.875rem;
 }
 
@@ -472,17 +489,17 @@ button, input, select, textarea { font: inherit; }
 }
 
 /* ── Stack & list ──────────────────────────────── */
-.stack { display: grid; gap: 0.75rem; }
+.stack { display: grid; gap: 0.85rem; }
 
 .list-card {
   display: flex;
   justify-content: space-between;
   gap: 1rem;
   align-items: flex-start;
-  padding: 1rem;
-  border-radius: 0.9rem;
-  border: 1px solid rgba(24,33,27,0.08);
-  background: rgba(255,255,255,0.66);
+  padding: 1rem 1.2rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(24,33,27,0.07);
+  background: #fafaf8;
 }
 
 .danger-border { border-color: rgba(166,67,45,0.22); }
@@ -559,20 +576,20 @@ button, input, select, textarea { font: inherit; }
 .kanban {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1rem;
+  gap: 1.25rem;
   align-items: start;
 }
 
 .kanban-col {
-  border-radius: 1.1rem;
-  border: 1px solid rgba(24,33,27,0.08);
-  background: rgba(255,255,255,0.5);
+  border-radius: 1.35rem;
+  border: 1px solid rgba(24,33,27,0.07);
+  background: #f8f5ef;
   overflow: hidden;
 }
 
 .kanban-col-head {
-  padding: 0.85rem 1rem;
-  border-bottom: 1px solid rgba(24,33,27,0.07);
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid rgba(24,33,27,0.06);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -581,7 +598,7 @@ button, input, select, textarea { font: inherit; }
 .kanban-col-head span {
   font-size: 0.72rem;
   text-transform: uppercase;
-  letter-spacing: 0.09em;
+  letter-spacing: 0.1em;
   font-weight: 700;
   color: #5d6a60;
 }
@@ -589,7 +606,7 @@ button, input, select, textarea { font: inherit; }
 .kanban-count {
   font-size: 0.72rem;
   font-weight: 700;
-  padding: 0.15rem 0.5rem;
+  padding: 0.2rem 0.55rem;
   border-radius: 999px;
   background: rgba(24,33,27,0.08);
   color: #5d6a60;
@@ -597,18 +614,19 @@ button, input, select, textarea { font: inherit; }
 
 .kanban-cards {
   display: grid;
-  gap: 0.6rem;
-  padding: 0.85rem;
+  gap: 0.75rem;
+  padding: 1rem;
   min-height: 120px;
 }
 
 .task-card {
-  padding: 0.9rem;
-  border-radius: 0.75rem;
-  border: 1px solid rgba(24,33,27,0.08);
+  padding: 1rem 1.1rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(24,33,27,0.07);
   background: white;
   display: grid;
   gap: 0.5rem;
+  box-shadow: 0 1px 4px rgba(24,33,27,0.04);
 }
 
 .task-card h4 { margin: 0; font-size: 0.875rem; }
@@ -772,7 +790,7 @@ button, input, select, textarea { font: inherit; }
     border-radius: 0.5rem;
   }
 
-  .main { padding: 1rem; }
+  .main { padding: 1.25rem 1rem; }
 
   .metric-grid { grid-template-columns: repeat(2, 1fr); }
 
