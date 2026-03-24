@@ -57,7 +57,7 @@ export async function PATCH(request, { params }) {
   const { id }   = params;
 
   // Only allow updating these fields
-  const allowed = ["lead_score", "next_action_date", "next_action_note", "type", "phone", "region"];
+  const allowed = ["name", "lead_score", "next_action_date", "next_action_note", "type", "phone", "region"];
   const updates = Object.fromEntries(
     Object.entries(payload).filter(([k]) => allowed.includes(k)),
   );
@@ -75,4 +75,23 @@ export async function PATCH(request, { params }) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ data });
+}
+
+export async function DELETE(request, { params }) {
+  if (!isSupabaseConfigured) {
+    return NextResponse.json({ error: "Supabase not configured." }, { status: 500 });
+  }
+
+  const auth = await requireViewer();
+  if (auth.error) {
+    return NextResponse.json({ error: auth.error.message }, { status: auth.error.status });
+  }
+
+  const supabase = createSupabaseServerClient();
+  const { id }   = params;
+
+  const { error } = await supabase.from("customers").delete().eq("id", id);
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json({ success: true });
 }
