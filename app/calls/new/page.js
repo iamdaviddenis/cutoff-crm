@@ -1,5 +1,5 @@
-import { CallLogPage } from "../../../components/call-log-page";
+import { redirect } from "next/navigation";
 
 export default function NewCallPage() {
-  return <CallLogPage />;
+  redirect("/interactions/new");
 }

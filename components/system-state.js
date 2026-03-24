@@ -25,9 +25,9 @@ export function SetupBanner({ message }) {
 
         <div className="info-block">
           <span>Next steps</span>
-          <ol className="simple-list ordered">
+          <ol className="simple-list">
             <li>Add the two env vars in Vercel.</li>
-            <li>Apply the SQL in <code>supabase/schema.sql</code>.</li>
+            <li>Apply <code>supabase/schema-v2.sql</code> in Supabase.</li>
             <li>Create a user in Supabase Auth and sign in.</li>
           </ol>
         </div>
@@ -40,17 +40,18 @@ export function AuthRequired() {
   return (
     <section className="notice">
       <strong>Sign in required.</strong>
-      <span>Use Supabase Auth to continue, then return to this workspace.</span>
-      <Link className="inline-link" href="/sign-in">Open sign in</Link>
+      <span>You need to be signed in to access this page.</span>
+      <Link className="inline-link" href="/login">Go to sign in →</Link>
     </section>
   );
 }
 
-export function EmptyPanel({ title, copy }) {
+export function EmptyPanel({ title, copy, action }) {
   return (
     <div className="empty-panel">
       <strong>{title}</strong>
-      <span>{copy}</span>
+      {copy && <span className="subtle">{copy}</span>}
+      {action}
     </div>
   );
 }

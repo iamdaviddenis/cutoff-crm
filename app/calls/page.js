@@ -1,5 +1,5 @@
-import { CallsPage } from "../../components/calls-page";
+import { redirect } from "next/navigation";
 
 export default function CallsIndexPage() {
-  return <CallsPage />;
+  redirect("/interactions");
 }
