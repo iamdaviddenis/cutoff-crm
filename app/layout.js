@@ -11,7 +11,7 @@ const mulish = Mulish({
 });
 
 export const metadata = {
-  title: "CutOff CRM — Command Center",
+  title: "CutOff CRM — Customer Command Center",
   description: "Customer Command Center built with Next.js + Supabase.",
 };
 

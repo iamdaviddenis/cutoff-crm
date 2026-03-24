@@ -54,7 +54,7 @@ export default function Sidebar() {
     <aside className="sidebar">
       <div className="sidebar-brand">
         <span className="sidebar-brand-name">CutOff CRM</span>
-        <span className="sidebar-brand-sub">Command Center</span>
+        <span className="sidebar-brand-sub">Customer Command Center</span>
       </div>
 
       <nav className="sidebar-nav">

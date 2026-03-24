@@ -67,7 +67,7 @@ export default function TopNav({ userMenu }) {
           </span>
           <span className="flex flex-col justify-center">
             <span className="topnav-brand-name">CutOff CRM</span>
-            <span className="topnav-brand-sub">Command Center</span>
+            <span className="topnav-brand-sub">Customer Command Center</span>
           </span>
         </Link>
 
