@@ -1,6 +1,6 @@
 import "./globals.css";
 import { getViewer } from "../lib/auth";
-import Sidebar from "../components/sidebar";
+import TopNav from "../components/topnav";
 import UserMenu from "../components/user-menu";
 
 export const metadata = {
@@ -25,13 +25,8 @@ export default async function RootLayout({ children }) {
     <html lang="en">
       <body>
         <div className="shell">
-          <Sidebar />
-          <div className="main-wrap">
-            <header className="topbar">
-              <UserMenu viewer={viewer} />
-            </header>
-            <main className="main">{children}</main>
-          </div>
+          <TopNav userMenu={<UserMenu viewer={viewer} />} />
+          <main className="main">{children}</main>
         </div>
       </body>
     </html>

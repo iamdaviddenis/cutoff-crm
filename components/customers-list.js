@@ -89,7 +89,7 @@ export function CustomersListPage() {
               </label>
               <label className="field">
                 <span>Phone</span>
-                <input value={newForm.phone} onChange={(e) => setNewForm((f) => ({ ...f, phone: e.target.value }))} placeholder="+254…" />
+                <input value={newForm.phone} onChange={(e) => setNewForm((f) => ({ ...f, phone: e.target.value }))} placeholder="+255…" />
               </label>
             </div>
             <div className="grid-two">

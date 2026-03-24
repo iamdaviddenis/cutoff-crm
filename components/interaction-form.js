@@ -135,7 +135,7 @@ export function InteractionFormPage() {
                   <input
                     value={form.customer_phone}
                     onChange={(e) => set("customer_phone", e.target.value)}
-                    placeholder="+254…"
+                    placeholder="+255…"
                   />
                 </label>
               </div>
@@ -235,8 +235,7 @@ export function InteractionFormPage() {
       </section>
 
       <aside className="card side-card">
-        <p className="eyebrow">How it works</p>
-        <h2 style={{ margin: "0.2rem 0 0.75rem" }}>What happens next</h2>
+        <h2 style={{ margin: "0 0 0.75rem" }}>What happens next</h2>
         <div className="stack">
           <div className="info-block">
             <span>1. Interaction logged</span>
