@@ -20,6 +20,27 @@ const CATEGORY_LABELS = {
   partnership: "Partnership",
 };
 
+function DashboardPageSkeleton() {
+  return (
+    <div className="mx-auto w-full max-w-7xl animate-pulse space-y-10 pb-12" aria-busy="true" aria-label="Loading dashboard">
+      <div className="h-40 rounded-3xl bg-slate-200/80" />
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="h-32 rounded-2xl bg-slate-200/70" />
+        ))}
+      </div>
+      <div className="grid gap-6 lg:grid-cols-2">
+        <div className="h-56 rounded-2xl bg-slate-200/70" />
+        <div className="h-56 rounded-2xl bg-slate-200/70" />
+      </div>
+      <div className="grid gap-8 lg:grid-cols-3">
+        <div className="h-80 rounded-2xl bg-slate-200/70 lg:col-span-2" />
+        <div className="h-64 rounded-2xl bg-slate-200/70" />
+      </div>
+    </div>
+  );
+}
+
 function WeeklyReportPanel({ onClose }) {
   const [report, setReport] = useState("");
   const [loading, setLoading] = useState(true);
@@ -116,25 +137,29 @@ export function DashboardPage() {
   const [showReport, setShowReport] = useState(false);
 
   const load = useCallback(async () => {
-    const me = await fetch("/api/me", { cache: "no-store" }).then((r) => r.json());
-    setViewer(me.viewer);
-    if (!me.configured || !me.viewer) {
+    const res = await fetch("/api/dashboard/bootstrap", { cache: "no-store" });
+    const body = await res.json();
+
+    if (!body.configured) {
+      setViewer(null);
+      setDashboard(null);
       setLoading(false);
       return;
     }
 
-    const res = await fetch("/api/dashboard", { cache: "no-store" });
-    if (res.status === 403) {
+    setViewer(body.viewer);
+    if (!body.viewer) {
+      setLoading(false);
+      return;
+    }
+
+    if (body.forbidden) {
       setDashboard({ forbidden: true });
       setLoading(false);
       return;
     }
-    if (!res.ok) {
-      setLoading(false);
-      return;
-    }
-    const payload = await res.json();
-    setDashboard(payload.data);
+
+    setDashboard(body.dashboard);
     setLoading(false);
   }, []);
 
@@ -143,7 +168,9 @@ export function DashboardPage() {
   }, [load]);
   useRealtimeRefresh("dashboard", ["interactions", "tasks"], load);
 
-  if (loading) return null;
+  if (loading) {
+    return <DashboardPageSkeleton />;
+  }
   if (!viewer) return <AuthRequired />;
   if (dashboard?.forbidden) {
     return <EmptyPanel title="Admin access only" copy="This page is visible to admins only." />;
